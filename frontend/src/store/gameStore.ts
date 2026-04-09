@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { Commander } from '../components/CommanderSelect'
+import type { Commander } from '../components/CommanderSelect'
 import { getAIAction } from '../utils/environmentAI'
 import { useEnvironmentStore } from './environmentStore'
 
