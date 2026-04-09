@@ -4,9 +4,30 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="CHROMA COMMAND: THE LIVING PROTOCOL — Asymmetrical Web3 Strategy Game" />
+    <meta name="application-name" content="Chroma Command" />
+    <meta name="theme-color" content="#2D2A26" />
+    <meta name="description" content="Chroma Command on Monad: asymmetrical Web3 strategy on a 3D hex grid—living AI environment, indirect PvP, commanders with unique abilities. Play free in your browser." />
+    <meta name="keywords" content="Chroma Command, Monad game, Web3 strategy game, hex strategy game, asymmetrical strategy, browser strategy game" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <link rel="canonical" href="%SITE_URL%/" />
     <!-- FIX: referrer leakage to third parties; cheap hardening -->
     <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Chroma Command" />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:title" content="Chroma Command | Web3 Hex Strategy Game on Monad" />
+    <meta property="og:description" content="Asymmetrical Web3 strategy: 3D hex grid, living Chroma Field AI, indirect PvP. Commanders, resonance race, matchmaking—play in your browser." />
+    <meta property="og:image" content="%SITE_URL%/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Chroma Command: The Living Protocol — Web3 strategy on Monad" />
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Chroma Command | Web3 Hex Strategy Game on Monad" />
+    <meta name="twitter:description" content="Asymmetrical Web3 strategy on Monad. 3D hex grid, living environment, indirect PvP—play free in your browser." />
+    <meta name="twitter:image" content="%SITE_URL%/og-image.png" />
     <!--
       FIX (CSP): 'unsafe-inline' weakens XSS defenses; Vite dev HMR often needs it.
       Production: serve CSP with nonces via server/template, remove unsafe-inline, and widen connect-src to your API host (not only localhost).
@@ -15,7 +36,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <title>CHROMA COMMAND: THE LIVING PROTOCOL</title>
+    <title>Chroma Command | Web3 Hex Strategy Game on Monad</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Chroma Command: The Living Protocol",
+        "alternateName": ["Chroma Command"],
+        "description": "Asymmetrical Web3 competitive strategy game on the Monad network. 3D hex grid, living AI environment (Chroma Field), indirect PvP, unique commanders.",
+        "url": "%SITE_URL%/",
+        "image": "%SITE_URL%/og-image.png",
+        "genre": ["Strategy video game", "Web3"],
+        "gamePlatform": "Web browser",
+        "operatingSystem": "Web",
+        "applicationCategory": "Game",
+        "inLanguage": "en",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    </script>
     <!-- Consent flicker reduction: if valid consent JSON exists, hide banner hint until React hydrates -->
     <script>
       (function(){
@@ -31,6 +74,16 @@
     </script>
   </head>
   <body>
+    <noscript>
+      <main>
+        <h1>Chroma Command: The Living Protocol</h1>
+        <p>
+          Asymmetrical <strong>Web3 strategy game</strong> on <strong>Monad</strong>: race to 500 Resonance Points on a 3D hex grid,
+          commanders (Forge, Echo, Bastion, Mirage), a living AI environment, and indirect player competition.
+        </p>
+        <p>This game requires JavaScript. Enable JavaScript and reload the page to play.</p>
+      </main>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
