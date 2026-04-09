@@ -38,6 +38,7 @@ interface GameStore {
   walletAddress: string | null
   walletChainId: number | null
   walletError: string | null
+  walletHasProvider: boolean
 
   setScreen: (s: GameScreen) => void
   setPlayer1Name: (name: string) => void
@@ -48,6 +49,7 @@ interface GameStore {
   aiTakeTurn: (aggression: number) => void
   resetGame: () => void
   connectWallet: () => Promise<void>
+  disconnectWallet: () => void
   addConduit: (player: 1 | 2) => void
 }
 
@@ -69,6 +71,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   walletAddress: null,
   walletChainId: null,
   walletError: null,
+  walletHasProvider: typeof (globalThis as any).ethereum?.request === 'function',
 
   setScreen: (screen) => set({ screen }),
   setPlayer1Name: (name) => set(s => ({ player1: { ...s.player1, name } })),
@@ -82,7 +85,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ walletError: null })
     const eth = (globalThis as any).ethereum
     if (!eth || typeof eth.request !== 'function') {
-      set({ walletConnected: false, walletAddress: null, walletChainId: null, walletError: 'No EIP-1193 wallet found (install a wallet extension).' })
+      set({
+        walletConnected: false,
+        walletAddress: null,
+        walletChainId: null,
+        walletHasProvider: false,
+        walletError: 'No EIP-1193 wallet found (install a wallet extension).',
+      })
       return
     }
 
@@ -91,23 +100,72 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const chainHex = await eth.request({ method: 'eth_chainId' })
       const chainId = typeof chainHex === 'string' ? parseInt(chainHex, 16) : Number(chainHex)
       if (Number.isFinite(expectedChainId) && expectedChainId > 0 && chainId !== expectedChainId) {
-        set({ walletConnected: false, walletAddress: null, walletChainId: chainId, walletError: `Wrong network. Expected chainId ${expectedChainId}, got ${chainId}.` })
+        set({
+          walletConnected: false,
+          walletAddress: null,
+          walletChainId: chainId,
+          walletHasProvider: true,
+          walletError: `Wrong network. Expected chainId ${expectedChainId}, got ${chainId}.`,
+        })
         return
       }
 
       const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' })
       const address = accounts?.[0] || null
       if (!address) {
-        set({ walletConnected: false, walletAddress: null, walletChainId: chainId, walletError: 'Wallet returned no accounts.' })
+        set({
+          walletConnected: false,
+          walletAddress: null,
+          walletChainId: chainId,
+          walletHasProvider: true,
+          walletError: 'Wallet returned no accounts.',
+        })
         return
       }
 
-      set({ walletConnected: true, walletAddress: address, walletChainId: chainId, walletError: null })
+      // Subscribe once to provider events. This prevents stale UI state (classic dApp footgun).
+      if (!eth.__chromaSubscribed) {
+        eth.__chromaSubscribed = true
+
+        eth.on?.('accountsChanged', (accs) => {
+          const next = Array.isArray(accs) ? accs[0] : null
+          set({
+            walletConnected: Boolean(next),
+            walletAddress: next || null,
+            walletError: next ? null : 'Wallet disconnected.',
+          })
+        })
+
+        eth.on?.('chainChanged', (hex) => {
+          const nextChainId = typeof hex === 'string' ? parseInt(hex, 16) : Number(hex)
+          const ok = !(Number.isFinite(expectedChainId) && expectedChainId > 0) || nextChainId === expectedChainId
+          set({
+            walletChainId: Number.isFinite(nextChainId) ? nextChainId : null,
+            walletConnected: ok && Boolean(get().walletAddress),
+            walletError: ok ? null : `Wrong network. Expected chainId ${expectedChainId}, got ${nextChainId}.`,
+          })
+        })
+      }
+
+      set({
+        walletConnected: true,
+        walletAddress: address,
+        walletChainId: chainId,
+        walletHasProvider: true,
+        walletError: null,
+      })
     } catch (e: any) {
       const message = typeof e?.message === 'string' ? e.message : 'Wallet connection failed.'
-      set({ walletConnected: false, walletAddress: null, walletChainId: null, walletError: message })
+      set({
+        walletConnected: false,
+        walletAddress: null,
+        walletChainId: null,
+        walletHasProvider: true,
+        walletError: message,
+      })
     }
   },
+  disconnectWallet: () => set({ walletConnected: false, walletAddress: null, walletChainId: null, walletError: null }),
 
   doAction: (type) => {
     const { player1, currentPlayer, actionLog, turn, maxActions } = get()

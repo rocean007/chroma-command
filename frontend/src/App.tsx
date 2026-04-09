@@ -32,7 +32,7 @@ function ScreenFallback() {
 }
 
 function MenuScreen() {
-  const { setScreen, setPlayer1Name, player1, connectWallet, walletConnected, walletAddress, walletError } = useGameStore()
+  const { setScreen, setPlayer1Name, player1, connectWallet, disconnectWallet, walletConnected, walletAddress, walletError, walletHasProvider } = useGameStore()
   const [tab, setTab] = useState<MenuTab>('PLAY')
   const [name, setName] = useState(player1.name)
   const [mode, setMode] = useState<'ai' | 'human'>('ai')
@@ -135,10 +135,24 @@ function MenuScreen() {
               </button>
 
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <button type="button" className="btn-secondary touch-manipulation text-xs"
-                  onClick={() => { void connectWallet() }}>
-                  {walletConnected ? '✓ WALLET LINKED' : 'CONNECT WALLET'}
-                </button>
+                {!walletConnected ? (
+                  <button
+                    type="button"
+                    className="btn-secondary touch-manipulation text-xs"
+                    onClick={() => { void connectWallet() }}
+                    disabled={!walletHasProvider}
+                  >
+                    {walletHasProvider ? 'CONNECT WALLET' : 'NO WALLET DETECTED'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-secondary touch-manipulation text-xs"
+                    onClick={() => disconnectWallet()}
+                  >
+                    ✓ WALLET LINKED (DISCONNECT)
+                  </button>
+                )}
                 {walletConnected && (
                   <span className="label-text text-sulfur">{walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connected'}</span>
                 )}
