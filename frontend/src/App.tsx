@@ -32,7 +32,7 @@ function ScreenFallback() {
 }
 
 function MenuScreen() {
-  const { setScreen, setPlayer1Name, player1, connectWallet, walletConnected } = useGameStore()
+  const { setScreen, setPlayer1Name, player1, connectWallet, walletConnected, walletAddress, walletError } = useGameStore()
   const [tab, setTab] = useState<MenuTab>('PLAY')
   const [name, setName] = useState(player1.name)
   const [mode, setMode] = useState<'ai' | 'human'>('ai')
@@ -136,13 +136,16 @@ function MenuScreen() {
 
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <button type="button" className="btn-secondary touch-manipulation text-xs"
-                  onClick={() => { connectWallet() }}>
+                  onClick={() => { void connectWallet() }}>
                   {walletConnected ? '✓ WALLET LINKED' : 'CONNECT WALLET'}
                 </button>
                 {walletConnected && (
-                  <span className="label-text text-sulfur">0x7a3f...dead</span>
+                  <span className="label-text text-sulfur">{walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connected'}</span>
                 )}
               </div>
+              {walletError && (
+                <div className="label-text text-blood">{walletError}</div>
+              )}
             </div>
           )}
 

@@ -35,6 +35,9 @@ interface GameStore {
   commanderSelectStep: 1 | 2
   actionLog: GameAction[]
   walletConnected: boolean
+  walletAddress: string | null
+  walletChainId: number | null
+  walletError: string | null
 
   setScreen: (s: GameScreen) => void
   setPlayer1Name: (name: string) => void
@@ -44,7 +47,7 @@ interface GameStore {
   endTurn: () => void
   aiTakeTurn: (aggression: number) => void
   resetGame: () => void
-  connectWallet: () => void
+  connectWallet: () => Promise<void>
   addConduit: (player: 1 | 2) => void
 }
 
@@ -63,6 +66,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   commanderSelectStep: 1,
   actionLog: [],
   walletConnected: false,
+  walletAddress: null,
+  walletChainId: null,
+  walletError: null,
 
   setScreen: (screen) => set({ screen }),
   setPlayer1Name: (name) => set(s => ({ player1: { ...s.player1, name } })),
@@ -72,7 +78,36 @@ export const useGameStore = create<GameStore>((set, get) => ({
       : { player2: { ...s.player2, commander: cmd } }
   ),
   setCommanderSelectStep: (step) => set({ commanderSelectStep: step }),
-  connectWallet: () => set({ walletConnected: true }),
+  connectWallet: async () => {
+    set({ walletError: null })
+    const eth = (globalThis as any).ethereum
+    if (!eth || typeof eth.request !== 'function') {
+      set({ walletConnected: false, walletAddress: null, walletChainId: null, walletError: 'No EIP-1193 wallet found (install a wallet extension).' })
+      return
+    }
+
+    const expectedChainId = Number(import.meta.env.VITE_CHAIN_ID)
+    try {
+      const chainHex = await eth.request({ method: 'eth_chainId' })
+      const chainId = typeof chainHex === 'string' ? parseInt(chainHex, 16) : Number(chainHex)
+      if (Number.isFinite(expectedChainId) && expectedChainId > 0 && chainId !== expectedChainId) {
+        set({ walletConnected: false, walletAddress: null, walletChainId: chainId, walletError: `Wrong network. Expected chainId ${expectedChainId}, got ${chainId}.` })
+        return
+      }
+
+      const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' })
+      const address = accounts?.[0] || null
+      if (!address) {
+        set({ walletConnected: false, walletAddress: null, walletChainId: chainId, walletError: 'Wallet returned no accounts.' })
+        return
+      }
+
+      set({ walletConnected: true, walletAddress: address, walletChainId: chainId, walletError: null })
+    } catch (e: any) {
+      const message = typeof e?.message === 'string' ? e.message : 'Wallet connection failed.'
+      set({ walletConnected: false, walletAddress: null, walletChainId: null, walletError: message })
+    }
+  },
 
   doAction: (type) => {
     const { player1, currentPlayer, actionLog, turn, maxActions } = get()
