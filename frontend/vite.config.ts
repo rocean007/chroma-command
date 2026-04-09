@@ -48,8 +48,22 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      target: 'esnext',
+      target: 'es2022',
       sourcemap: true,
+      cssCodeSplit: true,
+      chunkSizeWarningLimit: 900,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return
+            if (id.includes('three') || id.includes('@react-three')) return 'three'
+            if (id.includes('framer-motion')) return 'motion'
+            if (id.includes('react-dom') || id.includes('/react/')) {
+              if (!id.includes('react-three') && !id.includes('@react-three')) return 'react-vendor'
+            }
+          },
+        },
+      },
     },
   }
 })
