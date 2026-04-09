@@ -2,6 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Critical path: paint background + text before JS/CSS bundle (Tailwind loads with app JS) -->
+    <style id="chroma-critical-css">
+      html, body, #root { min-height: 100%; min-height: 100dvh; margin: 0; background: #2D2A26; color: #F5F2EB; }
+      body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; -webkit-font-smoothing: antialiased; }
+    </style>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="application-name" content="Chroma Command" />
@@ -32,7 +37,7 @@
       FIX (CSP): 'unsafe-inline' weakens XSS defenses; Vite dev HMR often needs it.
       Production: serve CSP with nonces via server/template, remove unsafe-inline, and widen connect-src to your API host (not only localhost).
     -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:3001 ws://localhost:3001 wss://localhost:3001; img-src 'self' data: blob:; worker-src blob:; base-uri 'none'; frame-ancestors 'none';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:3001 ws://localhost:3001 wss://localhost:3001; img-src 'self' data: blob:; worker-src 'self' blob:; base-uri 'none'; frame-ancestors 'none';" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
