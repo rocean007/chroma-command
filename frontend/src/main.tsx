@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import CookieConsentRoot from './components/cookie/CookieConsentRoot'
 import './styles/globals.css'
+import { bootstrapPostPaint } from './perf/bootstrap'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -10,3 +11,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 )
+
+bootstrapPostPaint()
