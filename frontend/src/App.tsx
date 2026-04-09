@@ -1,20 +1,35 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useWebGL } from './hooks/useWebGL'
 import { useGameStore } from './store/gameStore'
 import { useEnvironmentStore } from './store/environmentStore'
-import CommanderSelect from './components/CommanderSelect'
-import MatchmakingQueue from './components/MatchmakingQueue'
-import PlayerHUD from './components/PlayerHUD'
-import EnvironmentPanel from './components/EnvironmentPanel'
-import EventToast from './components/EventToast'
-import VictoryScreen from './components/VictoryScreen'
-import Leaderboard from './components/Leaderboard'
-import GameBoard from './components/GameBoard'
 import { openCookiePreferences } from './features/consent'
+
+const CommanderSelect = lazy(() => import('./components/CommanderSelect'))
+const MatchmakingQueue = lazy(() => import('./components/MatchmakingQueue'))
+const VictoryScreen = lazy(() => import('./components/VictoryScreen'))
+const Leaderboard = lazy(() => import('./components/Leaderboard'))
+const GameBoard = lazy(() => import('./components/GameBoard'))
+const PlayerHUD = lazy(() => import('./components/PlayerHUD'))
+const EnvironmentPanel = lazy(() => import('./components/EnvironmentPanel'))
+const EventToast = lazy(() => import('./components/EventToast'))
 
 const MENU_TABS = ['PLAY', 'LEADERBOARD', 'HOW TO PLAY'] as const
 type MenuTab = typeof MENU_TABS[number]
+
+function ScreenFallback() {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex min-h-[100dvh] items-center justify-center"
+      style={{ background: '#2D2A26' }}
+      role="status"
+      aria-live="polite"
+    >
+      <span className="sr-only">Loading…</span>
+      <div className="h-8 w-8 animate-pulse rounded border border-amber-500/30" aria-hidden />
+    </div>
+  )
+}
 
 function MenuScreen() {
   const { setScreen, setPlayer1Name, player1, connectWallet, walletConnected } = useGameStore()
@@ -22,7 +37,13 @@ function MenuScreen() {
   const [name, setName] = useState(player1.name)
   const [mode, setMode] = useState<'ai' | 'human'>('ai')
 
-  if (tab === 'LEADERBOARD') return <Leaderboard />
+  if (tab === 'LEADERBOARD') {
+    return (
+      <Suspense fallback={<ScreenFallback />}>
+        <Leaderboard />
+      </Suspense>
+    )
+  }
 
   return (
     <motion.div
@@ -167,8 +188,8 @@ function MenuScreen() {
 
 export default function App() {
   const { supported, loading } = useWebGL()
-  const { screen, setScreen, player2, currentPlayer, turn, endTurn, aiTakeTurn, player1, player2: p2, winTarget } = useGameStore()
-  const { activeEvent, clearActiveEvent, tickEventCountdown, interference, addInterference, spawnCrystal, spawnAnomaly } = useEnvironmentStore()
+  const { screen, setScreen, currentPlayer, endTurn, aiTakeTurn, player1, player2: p2, winTarget } = useGameStore()
+  const { activeEvent, clearActiveEvent, tickEventCountdown, addInterference, spawnCrystal, spawnAnomaly } = useEnvironmentStore()
 
   // Apply event effects
   useEffect(() => {
@@ -188,9 +209,7 @@ export default function App() {
   // AI turn handler
   const handleTurnEnd = () => {
     if (currentPlayer === 2) {
-      // Tick environment on each full turn
-      const triggered = tickEventCountdown()
-      // AI takes turn after short delay
+      tickEventCountdown()
       setTimeout(() => {
         aiTakeTurn(40)
         addInterference(7)
@@ -217,24 +236,34 @@ export default function App() {
 
   return (
     <div className="relative h-full min-h-[100dvh] w-full overflow-hidden" style={{ background: 'var(--primary-bg)' }}>
-      {/* 3D board always renders in background when in game */}
-      {screen === 'game' && <GameBoard />}
-
       {/* Screen routing */}
       <AnimatePresence mode="wait">
         {screen === 'menu' && <MenuScreen key="menu" />}
-        {screen === 'commander_select' && <CommanderSelect key="cmd" />}
-        {screen === 'matchmaking' && <MatchmakingQueue key="queue" />}
-        {screen === 'victory' && <VictoryScreen key="victory" />}
+        {screen === 'commander_select' && (
+          <Suspense key="cmd" fallback={<ScreenFallback />}>
+            <CommanderSelect />
+          </Suspense>
+        )}
+        {screen === 'matchmaking' && (
+          <Suspense key="queue" fallback={<ScreenFallback />}>
+            <MatchmakingQueue />
+          </Suspense>
+        )}
+        {screen === 'victory' && (
+          <Suspense key="victory" fallback={<ScreenFallback />}>
+            <VictoryScreen />
+          </Suspense>
+        )}
       </AnimatePresence>
 
-      {/* Game HUD (overlaid on 3D board) */}
+      {/* 3D board + HUD load only when entering match */}
       {screen === 'game' && (
-        <>
+        <Suspense fallback={<ScreenFallback />}>
+          <GameBoard />
           <PlayerHUD onTurnEnd={handleTurnEnd} />
           <EnvironmentPanel />
           <EventToast event={activeEvent} onDismiss={clearActiveEvent} />
-        </>
+        </Suspense>
       )}
     </div>
   )
