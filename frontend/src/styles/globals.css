@@ -1,0 +1,257 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary-bg: #2D2A26;
+    --secondary-bg: #8B3A2B;
+    --accent-active: #E85D04;
+    --accent-critical: #FFB703;
+    --text-primary: #F5F2EB;
+    --text-error: #A41623;
+    --text-success: #6A994E;
+    --terrain: #3E3B37;
+    --resource: #F48C06;
+    --enemy: #BA181B;
+    --neutral: #9C7A4D;
+    --structure: #D4AF37;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body, #root {
+    width: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  body {
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    cursor: crosshair;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track { background: var(--primary-bg); }
+  ::-webkit-scrollbar-thumb { background: var(--secondary-bg); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent-active); }
+}
+
+@layer components {
+  .font-display { font-family: 'Cinzel', serif; }
+  .font-mono-cc { font-family: 'Share Tech Mono', monospace; }
+
+  .hex-btn {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  .panel-glass {
+    background: rgba(45, 42, 38, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(139, 58, 43, 0.45);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  .panel-glass-bright {
+    background: rgba(62, 59, 55, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(232, 93, 4, 0.35);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .glow-molten {
+    box-shadow: 0 0 12px rgba(232, 93, 4, 0.5), 0 0 40px rgba(232, 93, 4, 0.15);
+  }
+
+  .glow-amber {
+    box-shadow: 0 0 12px rgba(244, 140, 6, 0.5), 0 0 40px rgba(244, 140, 6, 0.15);
+  }
+
+  .glow-crimson {
+    box-shadow: 0 0 12px rgba(186, 24, 27, 0.6), 0 0 40px rgba(186, 24, 27, 0.2);
+  }
+
+  .text-glow-ember {
+    text-shadow: 0 0 20px rgba(255, 183, 3, 0.7), 0 0 60px rgba(255, 183, 3, 0.3);
+  }
+
+  .border-scan {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .border-scan::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-active), transparent);
+    animation: scan-line 3s linear infinite;
+  }
+
+  @keyframes scan-line {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(200px); opacity: 0; }
+  }
+
+  .btn-primary {
+    @apply font-display tracking-widest uppercase text-sm px-8 py-3 rounded-none;
+    background: var(--accent-active);
+    color: var(--primary-bg);
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-critical);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    @apply font-display tracking-widest uppercase text-xs px-6 py-2;
+    background: transparent;
+    color: var(--accent-active);
+    border: 1px solid var(--accent-active);
+    cursor: pointer;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(232, 93, 4, 0.15);
+  }
+
+  .stat-card {
+    @apply panel-glass rounded-sm p-3;
+    border-left: 2px solid var(--accent-active);
+  }
+
+  .label-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--neutral) 78%, var(--text-primary) 22%);
+  }
+
+  @supports not (color: color-mix(in srgb, white, black)) {
+    .label-text {
+      color: #c4ab88;
+    }
+  }
+
+  .value-text {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    color: var(--accent-critical);
+  }
+
+  .progress-bar-track {
+    height: 4px;
+    background: rgba(62, 59, 55, 0.8);
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 0;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .commander-card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .commander-card-hover:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-critical) !important;
+  }
+
+  .interference-fill {
+    background: linear-gradient(90deg, var(--text-success), var(--accent-critical), var(--enemy));
+  }
+
+  .resonance-fill-p1 {
+    background: linear-gradient(90deg, var(--accent-active), var(--accent-critical));
+  }
+
+  .resonance-fill-p2 {
+    background: linear-gradient(90deg, var(--structure), #e6c84f);
+  }
+
+  .event-toast-enter {
+    animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .event-toast-exit {
+    animation: toastOut 0.3s ease-in forwards;
+  }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translate(-50%, -60%) scale(0.85); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+
+  @keyframes toastOut {
+    from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    to { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
+  }
+
+  .webgl-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    background: var(--primary-bg);
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  }
+}
+
+@layer utilities {
+  .text-molten { color: var(--accent-active); }
+  .text-ember { color: var(--accent-critical); }
+  .text-crimson { color: var(--enemy); }
+  .text-sulfur { color: var(--text-success); }
+  .text-bronze { color: var(--neutral); }
+  .text-gold { color: var(--structure); }
+  .text-ash { color: var(--text-primary); }
+  .text-blood { color: var(--text-error); }
+  .bg-volcanic { background: var(--primary-bg); }
+  .bg-cinder { background: var(--terrain); }
+  .bg-rust { background: var(--secondary-bg); }
+
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
